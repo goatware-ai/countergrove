@@ -4,7 +4,7 @@ from typing import Optional
 import tensorflow as tf
 
 
-@tf.keras.utils.register_keras_serializable(package="psps")
+@tf.keras.utils.register_keras_serializable(package="countergrove")
 class BiasOnly(tf.keras.layers.Layer):
     """Bias-only layer (intercept only model).
 
