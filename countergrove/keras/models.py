@@ -8,8 +8,7 @@ import pypress
 import pypress.keras.layers
 import pypress.keras.regularizers
 
-from . import losses, layers, metrics
-from countergrove.keras import neglogliks
+from . import losses, layers, metrics, neglogliks
 
 
 tfk = tf.keras
