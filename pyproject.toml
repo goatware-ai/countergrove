@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "countergrove"
-version = "0.0.4"
+version = "0.0.5"
 description = "Countergrove: causal learning from observational data with TensorFlow and Keras"
 authors = ["Goatware AI <goatware.ai@gmail.com>"]
 license = "MIT"
