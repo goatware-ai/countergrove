@@ -14,8 +14,9 @@ from countergrove.keras import models
 model = models.build_toy_model(n_states=4, n_features=6)
 
 import tensorflow as tf
-tf.keras.utils.plot_model(model)
+tf.keras.utils.plot_model(model, show_layer_names=True, show_layer_activations=True)
 ```
+
 ![PSPS architecture](imgs/psps_architecture_v2.png)
 
 *Predictive State Propensity Subclassification* (**PSPS**) is a causal deep
