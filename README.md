@@ -2,12 +2,14 @@
 
 Causal learning from observational data, maintained by Goatware AI.
 
-
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
-![Github All Releases](https://img.shields.io/github/downloads/goatware-ai/countergrove/total.svg)
+[![PRs
+Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![MIT
+license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+![Github All
+Releases](https://img.shields.io/github/downloads/goatware-ai/countergrove/total.svg)
 
 ```python
 from countergrove.keras import models
@@ -15,6 +17,7 @@ model = models.build_toy_model(n_states=4, n_features=6)
 
 import tensorflow as tf
 tf.keras.utils.plot_model(model, show_layer_names=True, show_layer_activations=True)
+
 ```
 
 ![PSPS architecture](imgs/psps_architecture_v2.png)
@@ -22,46 +25,62 @@ tf.keras.utils.plot_model(model, show_layer_names=True, show_layer_activations=T
 *Predictive State Propensity Subclassification* (**PSPS**) is a causal deep
 learning algorithm for observational (non-randomized) data proposed by [Kelly,
 Kong, and Goerg (2022)](https://proceedings.mlr.press/v177/kelly22a.html). PSPS
-decomposes the joint distribution of Pr(outcome, treatment | features) by
-conditioning on intermediate predictive states from Pr(treatment | features).
-These predictive state representations are trained simultaneously to the outcome
-models and provide a principled way to estimate propensity score strata to
-guarantee balancedness within the strata (block).
+decomposes the joint distribution of $\Pr(\text{outcome}, \text{treatment} \mid
+\text{features})$ by conditioning on intermediate predictive states from
+$\Pr(\text{treatment} \mid \text{features})$. These predictive state
+representations are trained simultaneously to the outcome models and provide a
+principled way to estimate propensity score strata to guarantee balancedness
+within the strata (block).
 
-## Implementation
+For in-depth mathematical details, see References.
+
+## Implementation & Architecture
 
 `countergrove` implements the causal learning algorithm proposed in Kelly, Kong, Goerg
 (2022) as custom layers, metrics, and causal loss functions. It is fully
-compatible with the `tf.keras` API and all losses, layers, metrics can be used
-for building comprehensive causal learning graphs suitable for any kind of causal
-data / inference problem.
+compatible with the `tf.keras` API and all losses, layers, and metrics can be
+used for building comprehensive causal learning graphs suitable for any kind of
+causal data or inference problem.
 
+For details on custom Keras layers, loss functions, metrics, and callbacks, see
+[docs/model_building.md](docs/model_building.md).
 
-## General causal framework, not only binary treatment & continuous outcome
+### General Causal Framework
 
-PSPS is a general framework for causal learning for any treatment type (binary,
-continuous, multi-class, ...) and any outcome type (univariate, multivariate;
-binary, continuous, multi-class, ...).
+PSPS is a general framework for causal learning across any treatment type
+(binary, continuous, multi-class) and outcome type (univariate, multivariate,
+binary, continuous, survival).
 
-The `countergrove.keras.models` module contains `build_toy_model()` as a template of how
-to build a causal PSPS model architecture for the common case of binary
-treatment (T), numeric features (X) a univariate, continuous outcome (Y), with a
-specific hidden layer structure.  The toy model architecture can be used as a
-template for constructing specific PSPS model structure for the causal dataset
-at hand.
+The `countergrove.keras.models` module provides template builders like
+`build_toy_model()` for binary treatments and continuous outcomes, which can be
+adapted to your specific observational dataset.
 
+## Documentation Overview
 
-# Installation
+* **[Architecture](docs/architecture.md)**: Theoretical framework, predictive
+  states, and joint distribution modeling.
+* **[Development Guide](docs/development.md)**: Environment setup, testing,
+  formatting, and contribution guidelines.
+* **[Model Building](docs/model_building.md)**: Custom Keras layers, losses,
+  metrics, and training helpers.
+* **[Datasets API](docs/datasets.md)**: Using `CausalDataset` and built-in
+  benchmark datasets (Kang-Schafer, LaLonde, etc.).
+* **[Inference & Post-Processing](docs/inference.md)**: Computing ATE
+  predictions, output splitting, and bootstrap sampling.
 
-It can be installed directly from GitHub using:
+## Installation
 
-```python
-pip install git+https://github.com/goatware-ai/countergrove.git
+Install directly from GitHub:
+
+```bash
+pip install git+[https://github.com/goatware-ai/countergrove.git](https://github.com/goatware-ai/countergrove.git)
+
 ```
 
+For development setup and requirements, see
+[docs/development.md](docs/development.md).
 
-# Code examples
-
+## Code Example
 
 ```python
 import numpy as np
@@ -94,46 +113,47 @@ print("ATE\n\t true: %.1f \n\tnaive: %.1f \n\t PSPS: %.1f" % (
     ks_data.true_ate, ks_data.naive_ate(), pred_ate)
     )
 pd.DataFrame(history.history)[["loss", "val_loss"]].plot(logy=True); plt.grid()
-```
 
-```shell
-ATE
-	 true: 20.0
-	naive: -1.3
-	 PSPS: 17.3
 ```
 
 ![PSPS architecture](imgs/loss_trace.png)
 
+```bash
+ATE
+   true: 20.0
+  naive: -1.3
+   PSPS: 17.3
 
-**Recommendation:** If you have your own simulation study or real world dataset,
-wrap it into a `datasets.base.CausalDataset()` class and proceed as above for
-the `KangSchafer().sample()` example above.
+```
 
+**Recommendation**: If you have custom simulation studies or real-world
+datasets, wrap them into a `datasets.base.CausalDataset()` class. Learn more in
+[docs/datasets.md](docs/datasets.md).
 
-### Example notebooks
+### Example Notebooks
 
 * [`notebooks/countergrove_minimal_working_example.ipynb`](notebooks/countergrove_minimal_working_example.ipynb):
-  how to use `countergrove` for estimateing ATE for the Kang-Schafer dataset.
+  Minimal workflow for ATE estimation on Kang-Schafer.
+* [`notebooks/countergrove_demo.ipynb`](notebooks/countergrove_demo.ipynb): Comprehensive
+  usage examples on simulated and real-world datasets.
 
-* [`notebooks/countergrove_demo.ipynb`](notebooks/countergrove_demo.ipynb): more in depth code
-  examples on simulated and real world datasets.
+See [docs/inference.md](docs/inference.md) for details on ATE prediction and
+inference routines.
 
 ## References
 
-[Kelly, Kong, and Goerg (2022)](https://proceedings.mlr.press/v177/kelly22a.html),
- **Predictive State Propensity Subclassification (PSPS): A causal inference
- algorithm for data-driven propensity score stratification**, Proceedings of MLR
- for the *Causal Learning and Reasoning (CLEAR) 2022*.
-
+[Kelly, Kong, and Goerg
+(2022)](https://proceedings.mlr.press/v177/kelly22a.html), **Predictive State
+Propensity Subclassification (PSPS): A causal inference algorithm for
+data-driven propensity score stratification**, Proceedings of MLR for *Causal
+Learning and Reasoning (CLEAR) 2022*.
 
 ## License
 
 This project is licensed under the terms of the [MIT license](LICENSE).
 
-
-**Important:** This is **NOT** an official Google code release of PSPS from the
-original research paper; the repo here is not related to Google in any way.
-This is simply a re-implementation of the Google research
+**Important**: This is **NOT** an official Google code release of PSPS from the
+original research paper; this repository is not related to Google in any way. It
+is an independent re-implementation of the Google research
 [pre-print](https://research.google/pubs/pub49197/), with additional
-improvements/extension of the original architecture.
+improvements and extensions to the original architecture.
